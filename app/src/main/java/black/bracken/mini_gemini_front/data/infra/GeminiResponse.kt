@@ -3,36 +3,36 @@ package black.bracken.mini_gemini_front.data.infra
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GeminiResponse(
-    val data: GeminiResponseData,
+data class GeminiTextStreamResponse(
+    val data: GeminiTextStreamResponseData,
 )
 
 @Serializable
-data class GeminiResponseData(
-    val candidates: List<GeminiResponseCandidate>,
-    val usageMetadata: GeminiResponseUsageMetadata,
+data class GeminiTextStreamResponseData(
+    val candidates: List<GeminiTextStreamResponseCandidate>,
+    val usageMetadata: GeminiTextStreamResponseUsageMetadata,
     val modelVersion: String,
 )
 
 @Serializable
-data class GeminiResponseUsageMetadata(
+data class GeminiTextStreamResponseUsageMetadata(
     val promptTokenCount: Int,
     val totalTokenCount: Int,
 )
 
 @Serializable
-data class GeminiResponseCandidate(
-    val content: GeminiResponseCandidateContent
+data class GeminiTextStreamResponseCandidate(
+    val content: GeminiTextStreamResponseCandidateContent
 )
 
 @Serializable
-data class GeminiResponseCandidateContent(
-    val parts: List<GeminiResponseCandidatePart>,
+data class GeminiTextStreamResponseCandidateContent(
+    val parts: List<GeminiTextStreamResponseCandidatePart>,
     val role: String,
     val finishReason: String? = null,
 )
 
 @Serializable
-data class GeminiResponseCandidatePart(
+data class GeminiTextStreamResponseCandidatePart(
     val text: String,
 )
