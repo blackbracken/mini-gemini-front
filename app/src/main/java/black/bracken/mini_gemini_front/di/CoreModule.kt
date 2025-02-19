@@ -11,7 +11,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class CoreModule {
 
-    @Binds
-    abstract fun provideGeminiRepository(geminiRepositoryImpl: GeminiRepositoryImpl): GeminiRepository
+  @Binds
+  abstract fun provideGeminiRepository(geminiRepositoryImpl: GeminiRepositoryImpl): GeminiRepository
 
 }

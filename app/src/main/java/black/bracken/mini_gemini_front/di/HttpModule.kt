@@ -15,16 +15,16 @@ import io.ktor.serialization.kotlinx.json.json
 @InstallIn(SingletonComponent::class)
 class HttpModule {
 
-    @Provides
-    fun provideHttpClient(): HttpClient {
-        return HttpClient(OkHttp) {
-            install(ContentNegotiation) {
-                json(mgfJson)
-            }
-            install(HttpTimeout) {
-                socketTimeoutMillis = 30_000L
-            }
-        }
+  @Provides
+  fun provideHttpClient(): HttpClient {
+    return HttpClient(OkHttp) {
+      install(ContentNegotiation) {
+        json(mgfJson)
+      }
+      install(HttpTimeout) {
+        socketTimeoutMillis = 30_000L
+      }
     }
+  }
 
 }
