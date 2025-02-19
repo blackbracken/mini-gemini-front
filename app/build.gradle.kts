@@ -79,4 +79,6 @@ dependencies {
     implementation(libs.dagger.hilt.android)
     ksp(libs.dagger.compiler)
     ksp(libs.dagger.hilt.compiler)
+
+    implementation(libs.molecule.runtime)
 }

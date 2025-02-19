@@ -31,6 +31,4 @@ object GeminiConverter {
         }
     }
 
-
-
 }

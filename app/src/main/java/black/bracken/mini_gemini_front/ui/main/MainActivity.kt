@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
-import black.bracken.mini_gemini_front.data.kernel.AiTextStream
+import androidx.compose.runtime.getValue
 import black.bracken.mini_gemini_front.ui.theme.MiniGeminiFrontTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,18 +20,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val x = viewModel.text.collectAsState(initial = AiTextStream.Initial)
+            val uiState by viewModel.uiState.collectAsState()
+
             MiniGeminiFrontTheme {
                 MainScreen(
-                    uiState = MainUiState(
-                        selectedTab = MainSelectedTab.TextStream,
-                        textStreamAnswer = x.value,
-                        textStreamQuery = "Write a story about a magic backpack.",
-                    ),
+                    uiState = uiState,
                     uiAction = MainUiAction(
-                        onClickTab = { tab -> viewModel },
-                        onClickTextStreamQuerySendButton = { viewModel },
-                        onChangeTextStreamQueryText = { viewModel }
+                        onClickTab = viewModel::onClickTab,
+                        onChangeTextStreamQueryText = viewModel::onChangeTextStreamQueryText,
+                        onClickTextStreamQuerySendButton = viewModel::onClickTextStreamQuerySendButton,
                     )
                 )
             }

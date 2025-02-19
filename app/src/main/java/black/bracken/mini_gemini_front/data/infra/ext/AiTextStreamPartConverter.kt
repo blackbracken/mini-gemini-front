@@ -3,7 +3,7 @@ package black.bracken.mini_gemini_front.data.infra.ext
 import black.bracken.mini_gemini_front.data.infra.GeminiTextStreamResponse
 import black.bracken.mini_gemini_front.data.kernel.AiTextStreamPart
 
-object AiTextStreamConverter {
+object AiTextStreamPartConverter {
 
     fun fromGeminiResponse(response: GeminiTextStreamResponse?): AiTextStreamPart {
         return when (response) {

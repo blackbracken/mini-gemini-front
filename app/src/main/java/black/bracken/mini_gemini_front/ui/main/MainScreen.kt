@@ -15,9 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -31,25 +32,26 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import black.bracken.mini_gemini_front.data.kernel.AiTextStream
-import black.bracken.mini_gemini_front.data.kernel.AiTextStreamPart
+import androidx.compose.ui.unit.sp
 import black.bracken.mini_gemini_front.ui.theme.MiniGeminiFrontTheme
 
 data class MainUiState(
     val selectedTab: MainSelectedTab,
     val textStreamQuery: String,
-    val textStreamAnswer: AiTextStream,
+    val textStreamAnswer: String?,
 ) {
     companion object {
         val Initial = MainUiState(
             selectedTab = MainSelectedTab.TextStream,
-            textStreamAnswer = AiTextStream.Initial,
+            textStreamAnswer = null,
             textStreamQuery = "",
         )
     }
@@ -67,14 +69,14 @@ enum class MainSelectedTab(val index: Int, val title: String) {
 
 data class MainUiAction(
     val onClickTab: (MainSelectedTab) -> Unit,
+    val onChangeTextStreamQueryText: (String) -> Unit,
     val onClickTextStreamQuerySendButton: () -> Unit,
-    val onChangeTextStreamQueryText: () -> Unit,
 ) {
     companion object {
         val Noop = MainUiAction(
             onClickTab = {},
-            onClickTextStreamQuerySendButton = {},
             onChangeTextStreamQueryText = {},
+            onClickTextStreamQuerySendButton = {},
         )
     }
 }
@@ -117,7 +119,11 @@ fun MainScreen(
                 state = pagerState,
             ) { pageIndex ->
                 when (MainSelectedTab.fromIndex(pageIndex)) {
-                    MainSelectedTab.TextStream -> MainTextStreamContent()
+                    MainSelectedTab.TextStream -> MainTextStreamContent(
+                        uiState = uiState,
+                        uiAction = uiAction,
+                    )
+
                     MainSelectedTab.Interactive -> MainInteractiveContent()
                 }
             }
@@ -127,43 +133,53 @@ fun MainScreen(
 }
 
 @Composable
-private fun MainTextStreamContent() {
-    Box(
+private fun MainTextStreamContent(
+    uiState: MainUiState,
+    uiAction: MainUiAction,
+) {
+    val scrollState = rememberScrollState()
+    LaunchedEffect(uiState.textStreamAnswer) {
+        scrollState.animateScrollTo(Int.MAX_VALUE)
+    }
+
+    Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        LazyColumn {
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
-                TextStreamAnswer(
-                    answer = AiTextStream(
-                        parts = listOf(
-                            AiTextStreamPart.Success("Hello, world!"),
-                            AiTextStreamPart.Success("こんにちは、世界！"),
-                        )
-                    ),
-                )
-            }
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .weight(1f)
+                .padding(
+                    vertical = 32.dp,
+                    horizontal = 16.dp,
+                ),
+        ) {
+            TextStreamAnswer(
+                text = uiState.textStreamAnswer,
+            )
         }
         TextStreamInput(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
+            input = uiState.textStreamQuery,
+            onChangeInput = uiAction.onChangeTextStreamQueryText,
+            onClickSendButton = {
+
+                uiAction.onClickTextStreamQuerySendButton()
+            },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
 
 @Composable
 private fun TextStreamAnswer(
-    answer: AiTextStream,
+    text: String?,
 ) {
-    val text = answer.joinedText
-    if (text.isBlank()) {
+    if (text.isNullOrBlank()) {
         return
     }
 
     Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Icon(
             imageVector = Icons.Filled.Person,
@@ -184,6 +200,7 @@ private fun TextStreamAnswer(
         ) {
             Text(
                 text = text,
+                fontSize = 10.sp,
             )
         }
     }
@@ -203,8 +220,14 @@ private fun MainInteractiveContent() {
 
 @Composable
 private fun TextStreamInput(
+    input: String,
     modifier: Modifier,
+    onChangeInput: (String) -> Unit,
+    onClickSendButton: () -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
     Column(
         modifier = modifier
     ) {
@@ -222,13 +245,16 @@ private fun TextStreamInput(
                 .padding(horizontal = 8.dp),
         ) {
             OutlinedTextField(
-                value = "hello",
-                onValueChange = {},
+                value = input,
+                onValueChange = onChangeInput,
                 modifier = Modifier.weight(1f),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = {},
+                onClick = {
+                    onClickSendButton()
+                    keyboardController?.hide()
+                },
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
                 shape = MaterialTheme.shapes.large,
