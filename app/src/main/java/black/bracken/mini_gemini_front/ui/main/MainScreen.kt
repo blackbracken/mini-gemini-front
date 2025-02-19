@@ -37,10 +37,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import black.bracken.mini_gemini_front.ui.main.MainSelectedTab.entries
 import black.bracken.mini_gemini_front.ui.theme.MiniGeminiFrontTheme
 
 data class MainUiState(
@@ -226,7 +228,7 @@ private fun TextStreamInput(
     onClickSendButton: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = modifier
@@ -253,6 +255,7 @@ private fun TextStreamInput(
             Button(
                 onClick = {
                     onClickSendButton()
+                    focusManager.clearFocus(true)
                     keyboardController?.hide()
                 },
                 modifier = Modifier
